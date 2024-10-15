@@ -23,21 +23,25 @@ You can install them on Ubuntu/Debian-based systems with:
 
 ```bash
 sudo apt update
-
+```
 ## Installation
 
 To install the Hello World package, follow these steps:
 
 1. **Download the package:** 
    Ensure you have the .deb package file (`hello-world.deb`) and .deb.sig(`hello-world.deb.sig`) downloaded to your system.
+   Clone this repo :
+   ```bash
+   git clone https://github.com/frenzywall/HelloWorld.deb.git
+   ```
 
-2. **Install the package:** 
+3. **Install the package:** 
    Open a terminal and run the following command:
    ```bash
    sudo dpkg -i hello-world.deb
    ```
 
-3. **Fix Dependencies (if needed):** 
+4. **Fix Dependencies (if needed):** 
    If there are any dependency issues, you can resolve them by running:
    ```bash
    sudo apt-get install -f
