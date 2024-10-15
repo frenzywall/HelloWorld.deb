@@ -30,9 +30,15 @@ To install the Hello World package, follow these steps:
 
 1. **Download the package:** 
    Ensure you have the .deb package file (`hello-world.deb`) and .deb.sig(`hello-world.deb.sig`) downloaded to your system.
+
    Clone this repo :
    ```bash
    git clone https://github.com/frenzywall/HelloWorld.deb.git
+   ```
+
+   cd to the downloaded git rep:
+   ```bash
+   cd HelloWorld.deb
    ```
 
 3. **Install the package:** 
