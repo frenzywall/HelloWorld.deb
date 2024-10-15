@@ -1,19 +1,27 @@
 #!/bin/bash
+
+# Function to install gum
 install_gum() {
     sudo mkdir -p /etc/apt/keyrings
     curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
     echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ " | sudo tee /etc/apt/sources.list.d/charm.list
     sudo apt update && sudo apt install -y gum
 }
+
+# Check if gum is installed; install if missing
 if ! command -v gum &> /dev/null; then
     echo "🚨 gum is not installed. Installing gum..."
     install_gum
+fi
+
+# Function to show welcome message
 welcome_message() {
     gum style --bold --foreground 4 "🎉 Welcome to the Hello World Package Installer! 🎉"
     sleep 1
 }
-confirm_proceed() {
 
+# Function to confirm whether to proceed with the installation
+confirm_proceed() {
     gum style --bold "You are about to install the Hello World package. Do you want to continue? (y/n)"
     read -r confirm
     if [[ ! $confirm =~ ^[Yy]$ ]]; then
@@ -21,11 +29,14 @@ confirm_proceed() {
         exit 0
     fi
 }
+
+# Function to install jq
 install_jq() {
     echo "Installing jq..."
     sudo apt-get install jq --yes
 }
 
+# Function to verify the package
 verify_package() {
     echo "Verifying the package..."
     gpg --verify hello-world.deb.sig hello-world.deb
@@ -36,6 +47,8 @@ verify_package() {
         exit 1
     fi
 }
+
+# Function to install the Hello World package
 install_package() {
     echo "Installing the Hello World package..."
     sudo dpkg -i hello-world.deb
@@ -45,12 +58,14 @@ install_package() {
     fi
     echo "🎉 The Hello World package has been installed successfully!"
 }
+
+# Start of the script
 welcome_message
 sleep 1
 confirm_proceed
 install_jq
 
-fi
+# Choose GPG key source
 key_source=$(gum choose "Download GPG key from URL" "Use local GPG key file")
 if [ "$key_source" == "Download GPG key from URL" ]; then
     while true; do
@@ -84,6 +99,7 @@ else
         fi
     done
 fi
+
 sleep 2
 gum style --bold "Importing the public key..."
 gpg --import public_key.gpg
@@ -91,15 +107,18 @@ if [ $? -ne 0 ]; then
     gum style --bold --foreground 1 "❌ Failed to import the public key. Exiting..."
     exit 1
 fi
+
 verify_package
 install_package
+
 gum style --border="double" --foreground 2 --background 0 --padding 1 "🎉 Hello World Package Installed Successfully! 🎉"
 gum style --bold "Running the Hello World program..."
 sleep 1
 hello-world
 sleep 3
-echo "Hello-World Package has been succesfully installed and verfied!"
+echo "Hello-World Package has been successfully installed and verified!"
 echo "++++++++"
 gum style --border="double" --foreground 4 --background 0 --padding 1 "Thank you for using the Hello World Package Installer! :)"
-read -p "$(gum style --bold 'Press Enter to exit...')"
 
+# Prompt user to press Enter to exit
+read -p "$(gum style --bold 'Press Enter to exit...')"
