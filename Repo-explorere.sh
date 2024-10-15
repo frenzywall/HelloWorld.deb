@@ -1,104 +1,110 @@
 #!/bin/bash
 
-# Function to display a welcome message
-function welcome_message() {
-    gum style --bold --foreground 2 --background 0 --padding 1 \
-        "🌟 Welcome to the GitHub File Explorer! 🌟"
-}
+# Check if gum is installed
+if ! command -v gum &> /dev/null; then
+    echo "gum is not installed. Please install it to use this script."
+    exit 1
+fi
 
-# Function to display error messages
-function error_message() {
-    gum style --bold --foreground 1 "🚨 $1"
-}
+# Check if jq is installed
+if ! command -v jq &> /dev/null; then
+    echo "jq is not installed. Please install it to use this script."
+    exit 1
+fi
 
-# Function to display a success message
-function success_message() {
-    gum style --bold --foreground 2 "$1"
-}
-
-# Function to list repositories
-function list_repositories() {
+# Function to fetch repositories for a specified GitHub user
+fetch_repositories() {
     local owner="$1"
-    repos_json=$(curl -s "https://api.github.com/users/$owner/repos?per_page=100")
-    repo_list=$(echo "$repos_json" | jq -r '.[].name')
+    api_url="https://api.github.com/users/$owner/repos"
+    repos_json=$(curl -s "$api_url")
 
-    if [ -z "$repo_list" ]; then
-        error_message "No repositories found for user: $owner."
+    # Check if the response contains an error
+    if [[ $(echo "$repos_json" | grep -c '"message":') -gt 0 ]]; then
+        gum style --bold --foreground 130 "🚨 Error fetching repositories for $owner. Please check the username."
         exit 1
     fi
 
-    # Create formatted repository names as hyperlinks
-    repo_links=$(echo "$repo_list" | awk -v owner="$owner" '{print "\033[1;34m" $0 "\033[0m - [https://github.com/" owner "/" $0 "]"}')
-
-    # Display repository names
-    gum style --bold --foreground 3 --background 0 --padding 1 "📦 Repositories for user: $owner"
-
-    # Display the repository links and allow selection
-    selected_repo=$(echo "$repo_links" | gum choose --header "Select a repository (press '↑' or '↓' to navigate):")
-
-    # Check if "Go Back" is selected
-    if [[ "$selected_repo" == *"Go Back"* ]]; then
-        return 1
-    fi
-
-    # Extract the selected repository name
-    selected_repo_name=$(echo "$selected_repo" | awk -F ' - ' '{print $1}' | sed 's/ \x1B\[[0-9;]*m//g')
-
-    echo "$selected_repo_name"
+    # List repository names
+    echo "$repos_json" | jq -r '.[].full_name'
 }
 
-# Main script starts here
-welcome_message
+# Function to fetch files from a specified GitHub repository
+fetch_files() {
+    local repo="$1"
+    local branch="$2"
 
-while true; do
-    # Prompt for GitHub repository owner
-    owner=$(gum input --placeholder "🧑‍💻 Enter the GitHub repository owner (e.g., frenzywall):")
-    if [ -z "$owner" ]; then
-        error_message "Owner cannot be empty."
-        exit 1
-    fi
-
-    # List repositories and capture the selected repository
-    selected_repo=$(list_repositories "$owner")
-
-    # Break the loop if the user chooses to go back
-    if [ -z "$selected_repo" ]; then
-        continue
-    fi
-
-    # Prompt for branch name with a default value
-    branch=$(gum input --placeholder "🌿 Enter the branch name (default: main):" --value "main")
-
-    # Construct the API URL and raw URL base for the selected repository
-    api_url="https://api.github.com/repos/$owner/$selected_repo/contents?ref=$branch"
-    raw_url_base="https://raw.githubusercontent.com/$owner/$selected_repo/$branch"
-
-    # Fetch the file list from the GitHub API
+    api_url="https://api.github.com/repos/$repo/contents?ref=$branch"
     files_json=$(curl -s "$api_url")
 
-    # Check if the file list is empty or null
-    file_list=$(echo "$files_json" | jq -r '.[] | select(.type == "file") | .path')
+    # Check if the response contains an error
+    if [[ $(echo "$files_json" | grep -c '"message":') -gt 0 ]]; then
+        gum style --bold --foreground 130 "🚨 Error fetching files from $repo. Please check the repository name."
+        exit 1
+    fi
 
-    if [ -z "$file_list" ]; then
-        error_message "No files found in the repository: $selected_repo."
+    file_list=$(echo "$files_json" | jq -r '.[] | select(.type == "file") | .path')
+    echo "$file_list"
+}
+
+# Main script execution loop
+while true; do
+    # Section header with styling
+    gum style --bold --foreground 82 --padding="1" --margin="1 0" \
+        "🌍 GitHub File Explorer"
+
+    # Get user input for GitHub owner
+    owner=$(gum input --placeholder "Enter GitHub owner (or type 'exit' to quit)" --prompt="🔍 " --prompt.foreground="94")
+    if [[ "$owner" == "exit" ]]; then
+        gum style --bold --foreground 82 "👋 Exiting the script. Goodbye!"
+        exit 0
+    fi
+
+    # Fetch and display repositories for the specified user
+    repos=$(fetch_repositories "$owner")
+    if [ -z "$repos" ]; then
+        gum style --bold --foreground 130 "🚨 No repositories found for user: $owner."
         continue
     fi
 
-    # Let the user select a file from the list
-    selected_file=$(echo "$file_list" | gum choose --header "📄 Select a file:")
+    # Use gum to display the repositories in a selection menu
+    selected_repo=$(echo "$repos" | gum choose --header="Select a Repository" --header.foreground="82" --item.foreground="94")
+    if [ -z "$selected_repo" ]; then
+        gum style --bold --foreground 130 "❌ No repository selected."
+        continue
+    fi
+
+    # Get the branch name (default to main)
+    branch=$(gum input --placeholder "Enter branch name (default: main)" --prompt="🌿 " --prompt.foreground="94")
+    branch=${branch:-main}
+
+    # Fetch and display files from the selected repository
+    files=$(fetch_files "$selected_repo" "$branch")
+    if [ -z "$files" ]; then
+        gum style --bold --foreground 130 "🚨 No files found in the repository."
+        continue
+    fi
+
+    # Use gum to display the files in a selection menu
+    selected_file=$(echo "$files" | gum choose --header="Select a File" --header.foreground="82" --item.foreground="94")
 
     if [ -z "$selected_file" ]; then
-        error_message "No file selected."
+        gum style --bold --foreground 130 "❌ No file selected."
         continue
     fi
 
-    # Construct the raw URL for the selected file
+    # Construct the raw URL
+    raw_url_base="https://raw.githubusercontent.com/$selected_repo/$branch"
     raw_url="$raw_url_base/$selected_file"
 
-    # Display the selected file and its raw URL
-    success_message "📂 Selected file: $selected_file"
-    success_message "🔗 Raw URL: $raw_url"
+    # Display selected file information with styling
+    gum style --bold --foreground 82 --background 236 --padding="1" --margin="1 0" \
+        "📂 Selected file: $selected_file"
+    gum style --bold --foreground 94 --background 236 --padding="1" --margin="1 0" \
+        "🔗 Raw URL: $raw_url"
 
-    # Prompt to copy the raw URL
+    # Optionally, allow copying the raw URL
     gum input --placeholder "Press Enter to copy the raw URL: $raw_url"
+
+    echo ""  # Print a blank line for better readability
 done
+

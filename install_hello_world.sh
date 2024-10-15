@@ -1,9 +1,19 @@
 #!/bin/bash
+install_gum() {
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ " | sudo tee /etc/apt/sources.list.d/charm.list
+    sudo apt update && sudo apt install -y gum
+}
+if ! command -v gum &> /dev/null; then
+    echo "🚨 gum is not installed. Installing gum..."
+    install_gum
 welcome_message() {
     gum style --bold --foreground 4 "🎉 Welcome to the Hello World Package Installer! 🎉"
     sleep 1
 }
 confirm_proceed() {
+
     gum style --bold "You are about to install the Hello World package. Do you want to continue? (y/n)"
     read -r confirm
     if [[ ! $confirm =~ ^[Yy]$ ]]; then
@@ -15,12 +25,7 @@ install_jq() {
     echo "Installing jq..."
     sudo apt-get install jq --yes
 }
-install_gum() {
-    sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
-    echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ " | sudo tee /etc/apt/sources.list.d/charm.list
-    sudo apt update && sudo apt install -y gum
-}
+
 verify_package() {
     echo "Verifying the package..."
     gpg --verify hello-world.deb.sig hello-world.deb
@@ -44,9 +49,7 @@ welcome_message
 sleep 1
 confirm_proceed
 install_jq
-if ! command -v gum &> /dev/null; then
-    echo "🚨 gum is not installed. Installing gum..."
-    install_gum
+
 fi
 key_source=$(gum choose "Download GPG key from URL" "Use local GPG key file")
 if [ "$key_source" == "Download GPG key from URL" ]; then
