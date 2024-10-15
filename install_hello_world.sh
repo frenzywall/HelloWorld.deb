@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Function to install gum if it's not installed
 install_gum() {
     sudo mkdir -p /etc/apt/keyrings
     curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
@@ -8,23 +7,11 @@ install_gum() {
     sudo apt update && sudo apt install -y gum
 }
 
-# Function to check if a command exists
-check_dependency() {
-    if ! command -v "$1" &> /dev/null; then
-        gum style --bold --foreground 1 "🚨 $1 is not installed. Installing it now..."
-        sudo apt install -y "$1"
-    fi
-}
+if ! command -v gum &> /dev/null; then
+    gum style --bold --foreground 1 "🚨 gum is not installed. Installing gum..."
+    install_gum
+fi
 
-# List of required dependencies
-dependencies=("curl" "gpg" "gum" "wget" "dpkg" "apt")
-
-# Check and install each dependency
-for dependency in "${dependencies[@]}"; do
-    check_dependency "$dependency"
-done
-
-# Verify the package
 verify_package() {
     gum style --bold "Verifying the package..."
     gpg --verify hello-world.deb.sig hello-world.deb
@@ -36,7 +23,6 @@ verify_package() {
     fi
 }
 
-# Install the package
 install_package() {
     gum style --bold "Installing the Hello World package..."
     sudo dpkg -i hello-world.deb
@@ -85,4 +71,3 @@ gum style --border="double" --foreground 4 --background 0 --padding 1 \
     "Thank you for using the Hello World Package Installer!"
 
 read -p "$(gum style --bold 'Press Enter to exit...')"
-
