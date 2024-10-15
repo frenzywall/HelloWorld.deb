@@ -1,6 +1,12 @@
 # Hello World Package
 
 This package outputs "Hello World" to the terminal when executed. Below are the instructions for installation, verification, and usage.
+
+Note!: If you face any dependencies errors at any point of time, run :
+```bash
+sudo apt-get install -
+```
+
 # Hello World Package Installer
 
 Welcome to the Hello World Package Installer! This script helps you install the Hello World package with verification.
