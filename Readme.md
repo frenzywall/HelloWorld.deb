@@ -1,6 +1,24 @@
 # Hello World Package
 
 This package outputs "Hello World" to the terminal when executed. Below are the instructions for installation, verification, and usage.
+# Hello World Package Installer
+
+Welcome to the Hello World Package Installer! This script helps you install the Hello World package with verification.
+
+## Dependencies
+
+Before running the installer, ensure you have the following installed:
+
+- **curl**: For downloading files.
+- **gpg**: For importing and verifying GPG keys.
+- **gum**: For a better command-line user interface.
+
+You can install them on Ubuntu/Debian-based systems with:
+
+```bash
+sudo apt update
+sudo apt install -y curl gnupg gum
+
 
 ## Installation
 
