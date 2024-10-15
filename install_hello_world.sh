@@ -51,10 +51,7 @@ if [ "$key_source" == "Download GPG key from URL" ]; then
             gum style --bold --foreground 1 "❌ No URL provided! Please enter a valid URL."
         else
             gum style --bold "Downloading the public key from $key_url..."
-            wget --show-progress "$key_url" -O public_key.gpg
-            
-            # Check if download succeeded
-            if [ $? -eq 0 ]; then
+            if wget --show-progress "$key_url" -O public_key.gpg; then
                 gum style --bold --foreground 2 "✅ Public key downloaded successfully!"
                 break
             else
@@ -85,8 +82,7 @@ fi
 
 # Import the public key
 gum style --bold "Importing the public key..."
-gpg --import public_key.gpg
-if [ $? -ne 0 ]; then
+if ! gpg --import public_key.gpg; then
     gum style --bold --foreground 1 "❌ Failed to import the public key. Exiting..."
     exit 1
 fi
