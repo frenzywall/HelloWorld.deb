@@ -1,0 +1,9 @@
+Package: hello-world
+Version: 1.0
+Section: base
+Priority: optional
+Architecture: all
+Maintainer: sreeram sreeramjvp@gmail.com
+Description: A simple hello-world package
+ This package prints "Hello World" to the terminal.
+
