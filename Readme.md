@@ -17,8 +17,6 @@ You can install them on Ubuntu/Debian-based systems with:
 
 ```bash
 sudo apt update
-sudo apt install -y curl gnupg gum
-
 
 ## Installation
 
