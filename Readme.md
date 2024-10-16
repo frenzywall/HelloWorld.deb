@@ -4,7 +4,7 @@ This package outputs "Hello World" to the terminal when executed. Below are the 
 
 Note!: If you face any dependencies errors at any point of time, run :
 ```bash
-sudo apt-get install -
+sudo apt-get install -f
 ```
 
 # Hello World Package Installer
@@ -89,6 +89,17 @@ You should see the output:
 ```
 Hello World
 ```
+## Easy way - Use the Install.sh script
+1. In the cloned directory(HelloWorld.deb folder), open terminal and
+   ```bash
+   chmod +rwx install_hello_world.sh
+   ```
+   and
+   
+   ```bash
+   ./install_hello_world.sh
+   ```
+   success!!
 
 ## License
 
