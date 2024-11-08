@@ -1,0 +1,35 @@
+name: Docker Image CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Log in to GitHub Packages
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/hello-world:latest .
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/hello-world:latest ghcr.io/${{ github.repository_owner }}/hello-world:latest
+      - name: Push Docker image to Docker Hub
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/hello-world:latest
+      - name: Push Docker image to GitHub Packages
+        run: docker push ghcr.io/${{ github.repository_owner }}/hello-world:latest
+
+      - name: Remove local images
+        run: |
+          docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/hello-world:latest
+          docker rmi ghcr.io/${{ github.repository_owner }}/hello-world:latest
