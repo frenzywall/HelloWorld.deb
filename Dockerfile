@@ -12,5 +12,5 @@ COPY . /Hello-world/
 RUN wget https://github.com/frenzywall/HelloWorld.deb/blob/main/public_key.gpg
 RUN gpg --import public_key.gpg
 RUN gpg --verify hello-world.deb.sig hello-world.deb
-RUN dpkg -i hello-world
+RUN dpkg -i hello-world.deb
 CMD ["/bin/bash"]
