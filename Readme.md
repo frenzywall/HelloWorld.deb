@@ -11,7 +11,7 @@ sudo apt-get install -f
 
 Welcome to the Hello World Package Installer! This script helps you install the Hello World package with verification!
 
-## Dependencies
+## Dependencies.
 
 Before running the installer, ensure you have the following installed:
 
