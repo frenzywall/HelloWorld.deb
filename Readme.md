@@ -101,6 +101,32 @@ Hello World
    ```
    success!!
 
+## Another-way (Pull the latest version of my Hello-world package from ghcr or dockerhub.io)
+
+1. To pull:
+```bash
+docker pull ghcr.io/frenzywall/hello-world:latest
+```
+2. Do:
+```bash
+docker images
+```
+3. Find the image that has hello-world in its name and copy the image ID or Image name:
+```bash
+docker run -it a9ecd57a729a  #Runs the container in interactive mode(tty)
+```
+4. You should be in the docker terminal now, to test if the package is correctly installed:
+```bash
+which hello-world            #This should return something like this, /usr/local/bin/hello-world, as its installed outside of apt package manager , its installed in /usr/local/bin. 
+```
+5. Programs are installed here so that they are available system wide!
+
+6. Finally! To test to run our program:
+```bash
+hello-world
+```
+Done! :)
+
 ## License
 
 This package is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
